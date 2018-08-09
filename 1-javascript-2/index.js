@@ -26,11 +26,9 @@ function promiseReduce(asyncFunctions, reduce, initialValue) {
   });
 }
 
-var promiseReduceResult = promiseReduce([fn1, fn2, fn3, fn4], function (memo, value) {
+promiseReduce([fn1, fn2, fn3, fn4], function (memo, value) {
   return memo + value;
-}, 's');
-
-promiseReduceResult.then(
+}, 's').then(
   function fulfilled(res) {
     console.log('promise reduce result', res, 'result is valid', res === 'start');
   }
