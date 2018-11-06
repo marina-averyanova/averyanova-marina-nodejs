@@ -1,14 +1,14 @@
 const fs = require('fs');
-
-const path = process.argv[2];
-console.log('path', path);
+const pathModule = require('path');
 
 let descr = {
     files: [],
     dirs: []
 };
 
-const getDirectoryDescription = (path, separator, res) => Promise.all(res.map(item => readContent(path + separator + item)));
+const getDirectoryDescription = (data, pathHead = '') => {
+  return Promise.all([].concat(data).map(item => readContent(pathModule.join(pathHead, item))));
+}
 
 const readContent = (path) => {
   return new Promise((resolve, reject) => {
@@ -20,25 +20,20 @@ const readContent = (path) => {
       if (res.isFile()) {
         descr.files.push(path);
         resolve(descr);
+        return;
       }
-      //if (res.isDirectory()) {
-        fs.readdir(path, (err, res) => {
-          if (err) {
-            reject(err);
-            return;
-          }
-          descr.dirs.push(path);
-          getDirectoryDescription(path, '/', res).then((res) => {
-            resolve(descr);
-          });
+      fs.readdir(path, (err, res) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        descr.dirs.push(path);
+        getDirectoryDescription(res, path).then((res) => {
+          resolve(descr);
         });
-    //  }
+      });
     });
   });
 };
 
-getDirectoryDescription('', '', [path])
-.then(
-  res => console.log(`directory desctiption for path "${path}": ${JSON.stringify(res)}`),
-  err => console.log(err)
-);
+module.exports = getDirectoryDescription;
