@@ -1,6 +1,10 @@
 const tree = require('./tree');
 
 const path = process.argv[2];
+if (!path) {
+  console.log('path is required');
+  return;
+}
 console.log('path', path);
 
 tree(path)

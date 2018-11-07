@@ -1,16 +1,11 @@
 const fs = require('fs');
 const pathModule = require('path');
 
-let descr = {
-    files: [],
-    dirs: []
-};
-
-const getDirectoryDescription = (data, pathHead = '') => {
-  return Promise.all([].concat(data).map(item => readContent(pathModule.join(pathHead, item))));
+const getDirectoryDescription = (data, pathHead = '', memo = {files: [], dirs: []}) => {
+  return Promise.all([].concat(data).map(item => readContent(pathModule.join(pathHead, item), memo)));
 }
 
-const readContent = (path) => {
+const readContent = (path, memo) => {
   return new Promise((resolve, reject) => {
     fs.stat(path, (err, res) => {
       if (err) {
@@ -18,8 +13,8 @@ const readContent = (path) => {
         return;
       }
       if (res.isFile()) {
-        descr.files.push(path);
-        resolve(descr);
+        memo.files.push(path);
+        resolve(memo);
         return;
       }
       fs.readdir(path, (err, res) => {
@@ -27,9 +22,9 @@ const readContent = (path) => {
           reject(err);
           return;
         }
-        descr.dirs.push(path);
-        getDirectoryDescription(res, path).then((res) => {
-          resolve(descr);
+        memo.dirs.push(path);
+        getDirectoryDescription(res, path, memo).then((res) => {
+          resolve(memo);
         });
       });
     });
