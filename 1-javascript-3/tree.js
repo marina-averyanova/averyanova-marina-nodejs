@@ -17,15 +17,16 @@ const readContent = (path, memo) => {
         resolve(memo);
         return;
       }
+
       fs.readdir(path, (err, res) => {
         if (err) {
           reject(err);
           return;
         }
         memo.dirs.push(path);
-        getDirectoryDescription(res, path, memo).then((res) => {
-          resolve(memo);
-        });
+        getDirectoryDescription(res, path, memo)
+          .then(res => resolve(memo))
+          .catch(err => reject(err));
       });
     });
   });
